@@ -1,0 +1,27 @@
+# Node.js
+node_modules/
+.env
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# dotenv environment files
+*.env
+
+# OS/macOS
+.DS_Store
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# Build output
+dist/
+build/
