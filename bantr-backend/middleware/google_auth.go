@@ -5,15 +5,14 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/AnshX01/Bantr/bantr-backend/models"
+	"github.com/AnshX01/Bantr/bantr-backend/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v4"
 	"google.golang.org/api/idtoken"
 )
 
-var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+
 
 func GoogleAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -37,13 +36,18 @@ func GoogleAuthMiddleware() gin.HandlerFunc {
 		name := payload.Claims["name"].(string)
 		picture := payload.Claims["picture"].(string)
 
-		user := models.User{
-			Email:   email,
-			Name:    name,
-			Picture: picture,
+		// Get users collection
+		usersCollection := utils.GetUsersCollection()
+
+		// Find or create user in database
+		user, err := models.FindOrCreateUser(usersCollection, name, email, picture)
+		if err != nil {
+			log.Println("Database error:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+			return
 		}
 
-		tokenString, err := generateJWT(user)
+		tokenString, err := utils.GenerateToken(*user)
 		if err != nil {
 			log.Println("JWT generation error:", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
@@ -57,14 +61,4 @@ func GoogleAuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-func generateJWT(user models.User) (string, error) {
-	claims := jwt.MapClaims{
-		"email":   user.Email,
-		"name":    user.Name,
-		"picture": user.Picture,
-		"exp":     time.Now().Add(time.Hour * 72).Unix(),
-	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
-}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
+import apiService from '../services/api';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -12,27 +13,16 @@ const Login = () => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:8080/api/auth/google', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token: credentialResponse.credential }),
-      });
-
-      const data = await response.json();
+      const data = await apiService.googleAuth(credentialResponse.credential);
       
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        console.log('Login successful:', data.user);
-        navigate('/home');
-      } else {
-        setError(data.error || 'Authentication failed');
-        console.error('Authentication failed:', data.error);
-      }
+      // Store authentication data
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      console.log('Login successful:', data.user);
+      navigate('/home');
     } catch (error) {
-      setError('Network error. Please try again.');
+      setError(error.message || 'Authentication failed');
       console.error('Login error:', error);
     } finally {
       setLoading(false);
