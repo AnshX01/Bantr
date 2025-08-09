@@ -8,6 +8,7 @@ import (
 
 	"github.com/AnshX01/Bantr/bantr-backend/routes"
 	"github.com/AnshX01/Bantr/bantr-backend/utils"
+	"github.com/AnshX01/Bantr/bantr-backend/websocket"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
@@ -25,6 +26,11 @@ func main() {
 	}
 
 	utils.ConnectDB()
+
+	// Initialize WebSocket hub
+	hub := websocket.NewHub()
+	go hub.Run()
+	log.Println("WebSocket hub started")
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
@@ -55,6 +61,7 @@ func main() {
 	routes.AuthRoutes(router)
 	routes.UserRoutes(router)
 	routes.MeetingRoutes(router)
+	routes.WebSocketRoutes(router, hub)
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "Bantr backend running!"})

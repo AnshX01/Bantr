@@ -222,7 +222,7 @@ function Home() {
               fontWeight: 'bold'
             }}
           >
-            🚀 Start New Meeting
+            Start New Meeting
           </button>
           <button
             onClick={handleJoinMeeting}
@@ -238,7 +238,7 @@ function Home() {
               fontWeight: 'bold'
             }}
           >
-            🔗 Join Meeting
+            Join Meeting
           </button>
         </div>
       </div>

@@ -16,12 +16,12 @@ type Meeting struct {
 	RoomID      string        `bson:"room_id" json:"room_id"`
 	Title       string        `bson:"title" json:"title"`
 	Description string        `bson:"description" json:"description"`
-	CreatedBy   string        `bson:"created_by" json:"created_by"`     // User ID who created the meeting
-	CreatorName string        `bson:"creator_name" json:"creator_name"` // User name for display
+	CreatedBy   string        `bson:"created_by" json:"created_by"`
+	CreatorName string        `bson:"creator_name" json:"creator_name"`
 	IsActive    bool          `bson:"is_active" json:"is_active"`
 	CreatedAt   time.Time     `bson:"created_at" json:"created_at"`
 	UpdatedAt   time.Time     `bson:"updated_at" json:"updated_at"`
-	Participants []string     `bson:"participants" json:"participants"` // Array of user IDs
+	Participants []string     `bson:"participants" json:"participants"` 
 }
 
 func GenerateRoomID() string {
