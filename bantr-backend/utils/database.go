@@ -30,20 +30,16 @@ func ConnectDB() {
 	log.Printf("MongoDB URI: %s", mongoURI)
 	log.Printf("Database Name: %s", dbName)
 
-	// Set client options
 	clientOptions := options.Client().ApplyURI(mongoURI)
 
-	// Create context with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// Connect to MongoDB
 	client, err := mongo.Connect(clientOptions)
 	if err != nil {
 		log.Fatal("Failed to connect to MongoDB:", err)
 	}
 
-	// Test the connection
 	err = client.Ping(ctx, nil)
 	if err != nil {
 		log.Fatal("Failed to ping MongoDB:", err)
@@ -51,14 +47,12 @@ func ConnectDB() {
 
 	log.Println("Connected to MongoDB successfully!")
 
-	// Set global variables
 	Client = client
 	Database = client.Database(dbName)
 
 	log.Printf("Using database: %s", Database.Name())
 }
 
-// DisconnectDB closes the MongoDB connection
 func DisconnectDB() {
 	if Client != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -73,7 +67,6 @@ func DisconnectDB() {
 	}
 }
 
-// GetCollection returns a MongoDB collection
 func GetCollection(collectionName string) *mongo.Collection {
 	if Database == nil {
 		log.Fatal("Database not initialized. Call ConnectDB() first.")
@@ -82,7 +75,9 @@ func GetCollection(collectionName string) *mongo.Collection {
 	return Database.Collection(collectionName)
 }
 
-// GetUsersCollection returns the users collection
 func GetUsersCollection() *mongo.Collection {
 	return GetCollection("users")
+}
+func GetMeetingsCollection() *mongo.Collection {
+	return GetCollection("meetings")
 }

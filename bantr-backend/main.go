@@ -24,10 +24,8 @@ func main() {
 		port = "8080"
 	}
 
-	// Initialize database connection
 	utils.ConnectDB()
 
-	// Setup graceful shutdown
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -39,7 +37,6 @@ func main() {
 
 	router := gin.Default()
 
-	// CORS middleware
 	corsConfig := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -57,6 +54,7 @@ func main() {
 
 	routes.AuthRoutes(router)
 	routes.UserRoutes(router)
+	routes.MeetingRoutes(router)
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "Bantr backend running!"})
