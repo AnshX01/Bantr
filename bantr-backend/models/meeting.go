@@ -112,6 +112,24 @@ func GetUserMeetings(collection *mongo.Collection, userID string) ([]Meeting, er
 	return meetings, nil
 }
 
+func RemoveParticipant(collection *mongo.Collection, roomID, userID string) error {
+	filter := bson.M{"room_id": roomID}
+	update := bson.M{
+		"$pull": bson.M{"participants": userID},
+		"$set": bson.M{"updated_at": time.Now()},
+	}
+
+	log.Printf("Removing participant %s from room %s", userID, roomID)
+	result, err := collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		log.Printf("Error removing participant: %v", err)
+		return err
+	}
+
+	log.Printf("Participant removed. Modified count: %d", result.ModifiedCount)
+	return nil
+}
+
 func DeactivateMeeting(collection *mongo.Collection, roomID string) error {
 	filter := bson.M{"room_id": roomID}
 	update := bson.M{
@@ -120,14 +138,14 @@ func DeactivateMeeting(collection *mongo.Collection, roomID string) error {
 			"updated_at": time.Now(),
 		},
 	}
-	
-	log.Printf("Deactivating meeting with room ID: %s", roomID)
+
+	log.Printf("Deactivating meeting room: %s", roomID)
 	result, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Printf("Error deactivating meeting: %v", err)
 		return err
 	}
-	
-	log.Printf("Meeting deactivated successfully. Modified count: %d", result.ModifiedCount)
+
+	log.Printf("Meeting deactivated. Modified count: %d", result.ModifiedCount)
 	return nil
 }

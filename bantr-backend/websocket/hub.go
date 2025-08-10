@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/AnshX01/Bantr/bantr-backend/models"
+	"github.com/AnshX01/Bantr/bantr-backend/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -70,6 +71,14 @@ func (h *Hub) unregisterClient(client *models.Client) {
 		if client.RoomID != "" {
 			if room, exists := h.rooms[client.RoomID]; exists {
 				room.RemoveClient(client.ID)
+				
+				if client.UserID != "" {
+					meetingsCollection := utils.GetMeetingsCollection()
+					err := models.RemoveParticipant(meetingsCollection, client.RoomID, client.UserID)
+					if err != nil {
+						log.Printf("Error removing participant %s from room %s: %v", client.UserID, client.RoomID, err)
+					}
+				}
 				
 				if room.GetClientCount() == 0 {
 					delete(h.rooms, client.RoomID)

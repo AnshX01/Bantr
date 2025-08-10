@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiService from '../services/api';
+import MeetingRoom from './MeetingRoom';
 
 const MeetingDashboard = () => {
   const [meetings, setMeetings] = useState([]);
@@ -7,6 +8,7 @@ const MeetingDashboard = () => {
   const [error, setError] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [joinRoomId, setJoinRoomId] = useState('');
+  const [currentMeetingRoom, setCurrentMeetingRoom] = useState(null);
 
   const [createForm, setCreateForm] = useState({
     title: '',
@@ -64,10 +66,8 @@ const MeetingDashboard = () => {
 
     try {
       setLoading(true);
-      const data = await apiService.joinMeeting(roomId);
-      
-      alert(`Joined meeting: ${data.meeting.title}`);
-      console.log('Meeting data:', data.meeting);
+      setCurrentMeetingRoom(roomId);
+      setError('');
     } catch (error) {
       setError(error.message);
       console.error('Error joining meeting:', error);
@@ -91,10 +91,23 @@ const MeetingDashboard = () => {
     }
   };
 
+  const handleLeaveMeeting = () => {
+    setCurrentMeetingRoom(null);
+  };
+
   const handleLogout = () => {
     apiService.logout();
     window.location.href = '/login';
   };
+
+  if (currentMeetingRoom) {
+    return (
+      <MeetingRoom 
+        roomId={currentMeetingRoom} 
+        onLeave={handleLeaveMeeting}
+      />
+    );
+  }
 
   if (loading && meetings.length === 0) {
     return <div style={{ textAlign: 'center', padding: '50px' }}>Loading...</div>;
@@ -170,30 +183,36 @@ const MeetingDashboard = () => {
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <input
             type="text"
-            placeholder="Enter Room ID to join"
+            placeholder="Enter Room ID"
             value={joinRoomId}
             onChange={(e) => setJoinRoomId(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && joinRoomId.trim()) {
+                handleJoinMeeting(joinRoomId);
+              }
+            }}
             style={{
               padding: '15px',
               border: '1px solid #ddd',
-              borderRadius: '8px',
+              borderRadius: '4px',
               fontSize: '16px',
-              minWidth: '200px'
+              flex: 1
             }}
           />
           <button
             onClick={() => handleJoinMeeting(joinRoomId)}
+            disabled={loading || !joinRoomId.trim()}
             style={{
-              padding: '15px 25px',
+              padding: '15px 30px',
               backgroundColor: '#28a745',
               color: 'white',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '4px',
               cursor: 'pointer',
-              fontSize: '16px'
+              opacity: (!joinRoomId.trim()) ? 0.6 : 1
             }}
           >
-            Join Meeting
+            {loading ? 'Joining...' : 'Join Meeting'}
           </button>
         </div>
       </div>
