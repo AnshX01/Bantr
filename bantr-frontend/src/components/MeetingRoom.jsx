@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import VideoCall from './VideoCall';
 import apiService from '../services/api';
 
-const MeetingRoom = ({ roomId, onLeave }) => {
+const MeetingRoom = () => {
+  const { meetingId } = useParams();
+  const navigate = useNavigate();
   const [meeting, setMeeting] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -10,7 +13,7 @@ const MeetingRoom = ({ roomId, onLeave }) => {
 
   useEffect(() => {
     initializeMeeting();
-  }, [roomId]);
+  }, [meetingId]);
 
   const initializeMeeting = async () => {
     try {
@@ -36,7 +39,7 @@ const MeetingRoom = ({ roomId, onLeave }) => {
         });
       }
 
-      const meetingData = await apiService.joinMeeting(roomId);
+      const meetingData = await apiService.joinMeeting(meetingId);
       setMeeting(meetingData.meeting);
       
     } catch (error) {
@@ -48,9 +51,7 @@ const MeetingRoom = ({ roomId, onLeave }) => {
   };
 
   const handleLeaveMeeting = () => {
-    if (onLeave) {
-      onLeave();
-    }
+    navigate('/meetings');
   };
 
   if (loading) {
@@ -65,7 +66,7 @@ const MeetingRoom = ({ roomId, onLeave }) => {
       }}>
         <div style={{ fontSize: '18px' }}>Loading meeting...</div>
         <div style={{ fontSize: '14px', color: '#666' }}>
-          Room ID: {roomId}
+          Room ID: {meetingId}
         </div>
       </div>
     );
@@ -79,7 +80,8 @@ const MeetingRoom = ({ roomId, onLeave }) => {
         alignItems: 'center', 
         height: '100vh',
         flexDirection: 'column',
-        gap: '20px'
+        padding: '20px',
+        textAlign: 'center'
       }}>
         <div style={{ 
           padding: '20px', 
@@ -87,25 +89,24 @@ const MeetingRoom = ({ roomId, onLeave }) => {
           color: '#721c24',
           borderRadius: '8px',
           maxWidth: '500px',
-          textAlign: 'center'
+          marginBottom: '20px'
         }}>
-          <h3>Meeting Error</h3>
+          <h3 style={{ marginTop: 0 }}>Meeting Error</h3>
           <p>{error}</p>
-          <button 
-            onClick={handleLeaveMeeting}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              marginTop: '10px'
-            }}
-          >
-            Back to Dashboard
-          </button>
         </div>
+        <button 
+          onClick={handleLeaveMeeting}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#dc3545',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Back to Dashboard
+        </button>
       </div>
     );
   }
@@ -116,20 +117,83 @@ const MeetingRoom = ({ roomId, onLeave }) => {
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
-        height: '100vh'
+        height: '100vh',
+        flexDirection: 'column',
+        gap: '20px'
       }}>
         <div>Unable to load meeting information</div>
+        <button 
+          onClick={handleLeaveMeeting}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Back to Meetings
+        </button>
       </div>
     );
   }
 
   return (
-    <VideoCall
-      roomId={roomId}
-      userId={userInfo.userId}
-      userName={userInfo.name}
-      onLeave={handleLeaveMeeting}
-    />
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ 
+        padding: '15px 20px', 
+        backgroundColor: '#2d2d2d',
+        color: 'white',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      }}>
+        <div>
+          <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '500' }}>
+            {meeting?.title || 'Meeting'}
+          </h2>
+          <div style={{ fontSize: '0.9rem', color: '#aaa', marginTop: '4px' }}>
+            Room ID: {meetingId}
+          </div>
+        </div>
+        <button 
+          onClick={handleLeaveMeeting}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#dc3545',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontWeight: '500',
+            transition: 'background-color 0.2s'
+          }}
+          onMouseOver={e => e.currentTarget.style.backgroundColor = '#c82333'}
+          onMouseOut={e => e.currentTarget.style.backgroundColor = '#dc3545'}
+        >
+          <span>🚪</span> Leave Meeting
+        </button>
+      </div>
+      
+      <div style={{ 
+        flex: 1, 
+        backgroundColor: '#1a1a1a', 
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <VideoCall 
+          roomId={meetingId} 
+          userId={userInfo?.userId} 
+          userName={userInfo?.name || 'User'} 
+          onLeave={handleLeaveMeeting} 
+        />
+      </div>
+    </div>
   );
 };
 

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
+import MeetingRoom from '../components/MeetingRoom';
 
 function Home() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
+
   const [createForm, setCreateForm] = useState({
     title: '',
     description: ''
@@ -48,21 +50,25 @@ function Home() {
     }
   };
 
-  const handleJoinMeeting = async () => {
-    const roomId = prompt('Enter Room ID to join:');
-    if (!roomId || !roomId.trim()) {
-      return;
+  const handleJoinMeeting = async (roomId?: string | React.MouseEvent) => {
+    let roomIdToJoin = typeof roomId === 'string' ? roomId : undefined;
+    
+    if (!roomIdToJoin) {
+      const input = prompt('Enter Room ID to join:');
+      if (!input || !input.trim()) return;
+      roomIdToJoin = input.trim();
     }
 
     try {
       setLoading(true);
-      const data = await apiService.joinMeeting(roomId.trim());
-      
-      alert(`Joined meeting: ${data.meeting.title}`);
-      console.log('Meeting data:', data.meeting);
+      setError('');
+      await apiService.joinMeeting(roomIdToJoin);
+      navigate(`/meetings/${roomIdToJoin}`, { state: { from: 'home' } });
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'An error occurred');
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      setError(errorMessage);
       console.error('Error joining meeting:', error);
+      alert(`Could not join meeting: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -70,7 +76,6 @@ function Home() {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
-      {/* Header */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 

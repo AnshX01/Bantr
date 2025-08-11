@@ -272,35 +272,6 @@ const VideoCall = ({ roomId, userId, userName, onLeave }) => {
 
   return (
     <div style={containerStyle}>
-      {/* Header */}
-      <div style={{
-        padding: '15px 20px',
-        backgroundColor: '#2d2d2d',
-        color: 'white',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <div>
-          <h3 style={{ margin: 0 }}>Meeting Room: {roomId}</h3>
-          <div style={{ fontSize: '14px', color: '#ccc' }}>
-            {participants.length + 1} participant{participants.length !== 0 ? 's' : ''}
-          </div>
-        </div>
-        <button 
-          onClick={handleLeaveCall}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#dc3545',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Leave Meeting
-        </button>
-      </div>
 
       <div className="video-grid" style={{
         display: 'flex',

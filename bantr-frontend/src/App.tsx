@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Home from './pages/Home';
 import Login from './components/Login';
 import MeetingDashboard from './components/MeetingDashboard';
+import MeetingRoom from './components/MeetingRoom';
 
 function App() {
   const isAuthenticated = !!localStorage.getItem("token");
@@ -14,7 +15,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
         <Route path="/meetings" element={<MeetingDashboard />} />
-\      </Routes>
+        <Route path="/meetings/:meetingId" element={<MeetingRoom />} />
+      </Routes>
     </Router>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
-import MeetingRoom from './MeetingRoom';
 
 const MeetingDashboard = () => {
   const [meetings, setMeetings] = useState([]);
@@ -8,7 +8,7 @@ const MeetingDashboard = () => {
   const [error, setError] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [joinRoomId, setJoinRoomId] = useState('');
-  const [currentMeetingRoom, setCurrentMeetingRoom] = useState(null);
+  const navigate = useNavigate();
 
   const [createForm, setCreateForm] = useState({
     title: '',
@@ -66,7 +66,8 @@ const MeetingDashboard = () => {
 
     try {
       setLoading(true);
-      setCurrentMeetingRoom(roomId);
+      await apiService.joinMeeting(roomId.trim());
+      navigate(`/meetings/${roomId}`);
       setError('');
     } catch (error) {
       setError(error.message);
@@ -91,23 +92,14 @@ const MeetingDashboard = () => {
     }
   };
 
-  const handleLeaveMeeting = () => {
-    setCurrentMeetingRoom(null);
-  };
+
 
   const handleLogout = () => {
     apiService.logout();
     window.location.href = '/login';
   };
 
-  if (currentMeetingRoom) {
-    return (
-      <MeetingRoom 
-        roomId={currentMeetingRoom} 
-        onLeave={handleLeaveMeeting}
-      />
-    );
-  }
+
 
   if (loading && meetings.length === 0) {
     return <div style={{ textAlign: 'center', padding: '50px' }}>Loading...</div>;
